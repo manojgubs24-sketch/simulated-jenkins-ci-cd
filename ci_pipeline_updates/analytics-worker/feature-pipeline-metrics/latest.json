@@ -1,0 +1,12 @@
+{
+  "job_id": "8911ee21-0e5d-4ed3-8355-502a5c5a8031",
+  "repo": "analytics-worker",
+  "branch": "feature/pipeline-metrics",
+  "language": "python",
+  "priority": 42,
+  "priority_reason": "feature branch; repo rank 2 for analytics-worker",
+  "dispatch_order": 12,
+  "target_branch": "sim/analytics-worker/feature/pipeline-metrics",
+  "run_number": 1,
+  "processed_at_utc": "2026-05-01T18:23:36.547409+00:00"
+}
