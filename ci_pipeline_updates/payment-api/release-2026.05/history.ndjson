@@ -1,0 +1,1 @@
+{"job_id": "d280c394-b13e-4e54-80ac-8c1b3c0b3b9e", "repo": "payment-api", "branch": "release/2026.05", "language": "python", "priority": 10, "priority_reason": "release stabilization branch; repo rank 0 for payment-api", "dispatch_order": 5, "target_branch": "sim/payment-api/release/2026.05", "run_number": 1, "processed_at_utc": "2026-05-01T18:23:01.159621+00:00"}
