@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Simulated Jenkins Portal</title>
+    <style>
+        :root {
+            --bg: #07111f;
+            --panel: rgba(15, 23, 42, 0.88);
+            --panel-strong: rgba(17, 24, 39, 0.96);
+            --text: #e5eefb;
+            --muted: #93a5bf;
+            --border: rgba(148, 163, 184, 0.18);
+            --accent: #22c55e;
+            --accent-2: #38bdf8;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            color: var(--text);
+            font-family: "Segoe UI", Arial, sans-serif;
+            background:
+                radial-gradient(circle at top right, rgba(56, 189, 248, 0.15), transparent 26%),
+                radial-gradient(circle at top left, rgba(34, 197, 94, 0.14), transparent 22%),
+                linear-gradient(180deg, #020617 0%, #07111f 100%);
+            min-height: 100vh;
+        }
+        .page {
+            max-width: 1380px;
+            margin: 0 auto;
+            padding: 28px 18px 48px;
+        }
+        .hero {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+        .eyebrow {
+            color: var(--accent-2);
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        h1 {
+            margin: 0;
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            line-height: 1;
+        }
+        .subtitle {
+            margin: 0;
+            max-width: 840px;
+            color: var(--muted);
+        }
+        .grid {
+            display: grid;
+            gap: 18px;
+        }
+        .top-grid {
+            grid-template-columns: 1.1fr 0.9fr;
+            align-items: start;
+        }
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 18px 36px rgba(2, 6, 23, 0.24);
+            backdrop-filter: blur(12px);
+        }
+        .card h2 {
+            margin: 0 0 14px;
+            font-size: 1.08rem;
+        }
+        .card p {
+            margin: 0;
+            color: var(--muted);
+        }
+        .controls {
+            display: grid;
+            gap: 14px;
+        }
+        .control-grid {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        label {
+            display: grid;
+            gap: 8px;
+            color: var(--muted);
+            font-size: 0.94rem;
+        }
+        select, button {
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 12px 14px;
+            font: inherit;
+        }
+        select {
+            background: rgba(30, 41, 59, 0.75);
+            color: var(--text);
+        }
+        button {
+            cursor: pointer;
+            font-weight: 700;
+            color: #06110c;
+            background: linear-gradient(135deg, var(--accent), #16a34a);
+        }
+        button.secondary {
+            color: #051018;
+            background: linear-gradient(135deg, var(--accent-2), #0284c7);
+        }
+        button.subtle {
+            color: var(--text);
+            background: rgba(30, 41, 59, 0.75);
+        }
+        button:disabled {
+            opacity: 0.7;
+            cursor: progress;
+        }
+        .button-row {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        .status-line {
+            min-height: 24px;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+        .status-line.success { color: #86efac; }
+        .status-line.error { color: #fca5a5; }
+        .integration {
+            display: grid;
+            gap: 10px;
+        }
+        .integration code, .history-item code, td code {
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.84rem;
+            background: rgba(15, 23, 42, 0.75);
+            border-radius: 8px;
+            padding: 2px 6px;
+        }
+        .summary-grid {
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+        }
+        .summary-box {
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px;
+            background: rgba(15, 23, 42, 0.65);
+        }
+        .summary-box strong {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+        .summary-box span {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+        .repo-list {
+            display: grid;
+            gap: 12px;
+        }
+        .repo-item {
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px;
+            background: rgba(30, 41, 59, 0.52);
+        }
+        .repo-item strong {
+            display: block;
+            margin-bottom: 6px;
+        }
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .chip {
+            display: inline-flex;
+            gap: 6px;
+            align-items: center;
+            padding: 7px 10px;
+            border-radius: 999px;
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.24);
+            color: #bae6fd;
+            font-size: 0.82rem;
+        }
+        .tables {
+            grid-template-columns: 1.35fr 0.65fr;
+            align-items: start;
+        }
+        .table-wrap {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        th, td {
+            text-align: left;
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+        th {
+            color: var(--muted);
+            font-weight: 600;
+        }
+        .pill {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .pending { background: rgba(250, 204, 21, 0.12); color: #fde68a; }
+        .running { background: rgba(56, 189, 248, 0.12); color: #bae6fd; }
+        .publishing { background: rgba(251, 191, 36, 0.12); color: #fcd34d; }
+        .completed, .pushed, .local_commit_only { background: rgba(34, 197, 94, 0.12); color: #86efac; }
+        .failed, .push_failed, .publish_exception, .build_failed { background: rgba(239, 68, 68, 0.14); color: #fca5a5; }
+        .history-list {
+            display: grid;
+            gap: 10px;
+            max-height: 780px;
+            overflow-y: auto;
+        }
+        .history-item {
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 12px;
+            background: rgba(15, 23, 42, 0.65);
+        }
+        .history-head {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .history-time {
+            color: var(--muted);
+            font-size: 0.8rem;
+        }
+        .muted {
+            color: var(--muted);
+        }
+        .empty {
+            color: var(--muted);
+            padding: 10px 0;
+        }
+        a {
+            color: #7dd3fc;
+        }
+        @media (max-width: 1180px) {
+            .summary-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+            .tables {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 920px) {
+            .top-grid,
+            .control-grid,
+            .button-row,
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <section class="hero">
+            <div class="eyebrow">Simulated Jenkins</div>
+            <h1>CI/CD Trigger Portal</h1>
+            <p class="subtitle">
+                Trigger webhook-style Git pushes, watch the priority scheduler assign work, and track
+                which git branch and commit were published for each job.
+            </p>
+        </section>
+
+        <section class="grid top-grid">
+            <div class="card">
+                <h2>Trigger Events</h2>
+                <div class="controls">
+                    <div class="control-grid">
+                        <label>
+                            Repository
+                            <select id="repoSelect"></select>
+                        </label>
+                        <label>
+                            Branch
+                            <select id="branchSelect"></select>
+                        </label>
+                    </div>
+                    <div class="button-row">
+                        <button id="triggerButton">Trigger Push</button>
+                        <button id="sampleButton" class="secondary">Trigger Catalog Pushes</button>
+                        <button id="resetButton" class="subtle">Reset Dashboard</button>
+                    </div>
+                    <div id="status" class="status-line">Portal ready.</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>GitHub Target</h2>
+                <div id="integrationBox" class="integration"></div>
+            </div>
+        </section>
+
+        <section class="grid summary-grid" style="margin-top: 18px;">
+            <div class="summary-box"><strong id="totalCount">0</strong><span>Total Jobs</span></div>
+            <div class="summary-box"><strong id="runningCount">0</strong><span>Running</span></div>
+            <div class="summary-box"><strong id="publishingCount">0</strong><span>Publishing</span></div>
+            <div class="summary-box"><strong id="completedCount">0</strong><span>Completed</span></div>
+            <div class="summary-box"><strong id="failedCount">0</strong><span>Failed</span></div>
+            <div class="summary-box"><strong id="pushedCount">0</strong><span>Published</span></div>
+        </section>
+
+        <section class="grid top-grid" style="margin-top: 18px;">
+            <div class="card">
+                <h2>Repositories And Branch Priorities</h2>
+                <div id="repoList" class="repo-list"></div>
+            </div>
+            <div class="card">
+                <h2>Priority Push History</h2>
+                <p class="muted">
+                    The publish order follows dispatch order, which itself follows deterministic queue priority.
+                </p>
+                <div id="pushHistory" class="history-list" style="margin-top: 14px;"></div>
+            </div>
+        </section>
+
+        <section class="grid tables" style="margin-top: 18px;">
+            <div class="card">
+                <h2>Queued, Running, And Published Jobs</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Repo</th>
+                                <th>Branch</th>
+                                <th>Priority</th>
+                                <th>Dispatch</th>
+                                <th>Worker</th>
+                                <th>Status</th>
+                                <th>Git Sync</th>
+                                <th>Git Branch</th>
+                                <th>Commit</th>
+                                <th>Artifact</th>
+                                <th>Error</th>
+                            </tr>
+                        </thead>
+                        <tbody id="jobsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Recent Activity</h2>
+                <div id="historyList" class="history-list"></div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const repoSelect = document.getElementById("repoSelect");
+        const branchSelect = document.getElementById("branchSelect");
+        const triggerButton = document.getElementById("triggerButton");
+        const sampleButton = document.getElementById("sampleButton");
+        const resetButton = document.getElementById("resetButton");
+        const jobsTable = document.getElementById("jobsTable");
+        const repoList = document.getElementById("repoList");
+        const pushHistory = document.getElementById("pushHistory");
+        const historyList = document.getElementById("historyList");
+        const integrationBox = document.getElementById("integrationBox");
+        const statusEl = document.getElementById("status");
+        const summaryIds = {
+            total_jobs: document.getElementById("totalCount"),
+            running: document.getElementById("runningCount"),
+            publishing: document.getElementById("publishingCount"),
+            completed: document.getElementById("completedCount"),
+            failed: document.getElementById("failedCount"),
+            pushed_jobs: document.getElementById("pushedCount"),
+        };
+        let catalog = [];
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        function shortSha(value) {
+            return value ? value.slice(0, 8) : "—";
+        }
+
+        function branchLink(job) {
+            if (!job.repository_url || !job.git_branch) {
+                return "—";
+            }
+            return `<a href="${escapeHtml(job.repository_url)}/tree/${encodeURIComponent(job.git_branch)}" target="_blank" rel="noreferrer">${escapeHtml(job.git_branch)}</a>`;
+        }
+
+        function commitLink(job) {
+            if (!job.repository_url || !job.commit_sha) {
+                return "—";
+            }
+            return `<a href="${escapeHtml(job.repository_url)}/commit/${escapeHtml(job.commit_sha)}" target="_blank" rel="noreferrer"><code>${shortSha(job.commit_sha)}</code></a>`;
+        }
+
+        function setStatus(message, type = "") {
+            statusEl.textContent = message;
+            statusEl.className = type ? `status-line ${type}` : "status-line";
+        }
+
+        function populateRepos() {
+            const currentRepo = repoSelect.value;
+            repoSelect.innerHTML = "";
+            catalog.forEach((item, index) => {
+                const option = document.createElement("option");
+                option.value = item.repo;
+                option.textContent = item.repo;
+                option.selected = currentRepo ? currentRepo === item.repo : index === 0;
+                repoSelect.appendChild(option);
+            });
+            populateBranches();
+        }
+
+        function populateBranches() {
+            const currentBranch = branchSelect.value;
+            const selectedRepo = repoSelect.value;
+            const entry = catalog.find((item) => item.repo === selectedRepo);
+            branchSelect.innerHTML = "";
+            (entry?.branch_details || []).forEach((branch, index) => {
+                const option = document.createElement("option");
+                option.value = branch.name;
+                option.textContent = `${branch.name} (priority ${branch.priority})`;
+                option.selected = currentBranch ? currentBranch === branch.name : index === 0;
+                branchSelect.appendChild(option);
+            });
+        }
+
+        function renderCatalog() {
+            repoList.innerHTML = "";
+            catalog.forEach((item) => {
+                const wrapper = document.createElement("div");
+                wrapper.className = "repo-item";
+                wrapper.innerHTML = `
+                    <strong>${escapeHtml(item.repo)}</strong>
+                    <div class="muted">Language: ${escapeHtml(item.language)} | Repo rank: ${item.priority_rank}</div>
+                    <div class="chips">
+                        ${item.branch_details.map((branch) => `
+                            <span class="chip">
+                                <strong>${escapeHtml(branch.name)}</strong>
+                                <span>p${branch.priority}</span>
+                            </span>
+                        `).join("")}
+                    </div>
+                `;
+                repoList.appendChild(wrapper);
+            });
+        }
+
+        function renderIntegration(info) {
+            const repoText = escapeHtml(info.repository_url || "Not configured");
+            const branchPattern = escapeHtml(info.branch_pattern || "—");
+            const runtime = escapeHtml(info.mirror_path || "—");
+            const pushEnabled = info.remote_push_enabled ? "Enabled" : "Disabled";
+            integrationBox.innerHTML = `
+                <div><strong>Repository:</strong> <a href="${repoText}" target="_blank" rel="noreferrer">${repoText}</a></div>
+                <div><strong>Branch pattern:</strong> <code>${branchPattern}</code></div>
+                <div><strong>Runtime mirror:</strong> <code>${runtime}</code></div>
+                <div><strong>Remote push:</strong> ${pushEnabled}</div>
+                <div><strong>Failure rate:</strong> ${Number(info.failure_rate || 0).toFixed(2)}</div>
+                <div><strong>Catalog size:</strong> ${info.repo_count} repos / ${info.sample_push_count} branches</div>
+            `;
+            sampleButton.textContent = `Trigger All ${info.sample_push_count} Catalog Pushes`;
+        }
+
+        function renderSummary(summary) {
+            const counts = summary.counts || {};
+            summaryIds.total_jobs.textContent = summary.total_jobs ?? 0;
+            summaryIds.running.textContent = counts.running ?? 0;
+            summaryIds.publishing.textContent = counts.publishing ?? 0;
+            summaryIds.completed.textContent = counts.completed ?? 0;
+            summaryIds.failed.textContent = counts.failed ?? 0;
+            summaryIds.pushed_jobs.textContent = summary.pushed_jobs ?? 0;
+        }
+
+        function renderJobs(jobs) {
+            jobsTable.innerHTML = "";
+            if (!jobs.length) {
+                jobsTable.innerHTML = `<tr><td colspan="11" class="empty">No jobs queued yet.</td></tr>`;
+                return;
+            }
+            jobs.forEach((job) => {
+                const errorText = job.sync_error ? escapeHtml(job.sync_error) : "—";
+                const artifact = job.artifact_path ? `<code>${escapeHtml(job.artifact_path)}</code>` : "—";
+                const worker = job.worker_name ? escapeHtml(job.worker_name) : "—";
+                const syncClass = escapeHtml(job.sync_status || "queued");
+                const syncText = escapeHtml(job.sync_status || "queued");
+                const dispatch = job.dispatch_order ?? "—";
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${escapeHtml(job.repo)}</td>
+                    <td>${escapeHtml(job.branch)}</td>
+                    <td><code>${job.priority}</code></td>
+                    <td><code>${dispatch}</code></td>
+                    <td>${worker}</td>
+                    <td><span class="pill ${escapeHtml(job.status)}">${escapeHtml(job.status)}</span></td>
+                    <td><span class="pill ${syncClass}">${syncText}</span></td>
+                    <td>${branchLink(job)}</td>
+                    <td>${commitLink(job)}</td>
+                    <td>${artifact}</td>
+                    <td>${errorText}</td>
+                `;
+                jobsTable.appendChild(row);
+            });
+        }
+
+        function renderHistory(history) {
+            historyList.innerHTML = "";
+            if (!history.length) {
+                historyList.innerHTML = `<div class="empty">No job activity yet.</div>`;
+                return;
+            }
+            history.forEach((entry) => {
+                const item = document.createElement("div");
+                item.className = "history-item";
+                item.innerHTML = `
+                    <div class="history-head">
+                        <span class="pill ${escapeHtml(entry.status || entry.event)}">${escapeHtml(entry.event)}</span>
+                        <span class="history-time">${escapeHtml(entry.timestamp)}</span>
+                    </div>
+                    <div><strong>${escapeHtml(entry.repo)}</strong> / ${escapeHtml(entry.branch)}</div>
+                    <div class="muted">Priority ${entry.priority} | Dispatch ${entry.dispatch_order ?? "—"} | Worker ${escapeHtml(entry.worker_name || "—")}</div>
+                    <div style="margin-top: 8px;">${escapeHtml(entry.message)}</div>
+                `;
+                historyList.appendChild(item);
+            });
+        }
+
+        function renderPushHistory(jobs) {
+            const pushedJobs = jobs
+                .filter((job) => ["pushed", "local_commit_only"].includes(job.sync_status))
+                .sort((a, b) => (a.dispatch_order ?? 9999) - (b.dispatch_order ?? 9999));
+
+            pushHistory.innerHTML = "";
+            if (!pushedJobs.length) {
+                pushHistory.innerHTML = `<div class="empty">No branches have been published yet.</div>`;
+                return;
+            }
+
+            pushedJobs.forEach((job) => {
+                const item = document.createElement("div");
+                item.className = "history-item";
+                item.innerHTML = `
+                    <div class="history-head">
+                        <span class="pill ${escapeHtml(job.sync_status)}">${escapeHtml(job.sync_status)}</span>
+                        <span class="history-time">dispatch ${job.dispatch_order ?? "—"}</span>
+                    </div>
+                    <div><strong>${escapeHtml(job.repo)}</strong> / ${escapeHtml(job.branch)}</div>
+                    <div class="muted">Priority ${job.priority} | Git branch ${escapeHtml(job.git_branch || "—")}</div>
+                    <div style="margin-top: 8px;">Commit ${commitLink(job)}</div>
+                `;
+                pushHistory.appendChild(item);
+            });
+        }
+
+        async function fetchJson(url, options = undefined) {
+            const response = await fetch(url, options);
+            const payload = await response.json();
+            if (!response.ok) {
+                throw new Error(payload.error || payload.message || `Request failed for ${url}`);
+            }
+            return payload;
+        }
+
+        async function loadCatalog() {
+            catalog = await fetchJson("/catalog");
+            renderCatalog();
+            populateRepos();
+        }
+
+        async function loadIntegration() {
+            const info = await fetchJson("/integration/status");
+            renderIntegration(info);
+        }
+
+        async function loadJobs() {
+            const jobs = await fetchJson("/jobs");
+            renderJobs(jobs);
+            renderPushHistory(jobs);
+        }
+
+        async function loadHistory() {
+            const history = await fetchJson("/history");
+            renderHistory(history);
+        }
+
+        async function loadSummary() {
+            const summary = await fetchJson("/summary");
+            renderSummary(summary);
+        }
+
+        async function refreshAll() {
+            await Promise.all([loadJobs(), loadHistory(), loadSummary(), loadIntegration()]);
+        }
+
+        async function triggerPush() {
+            const repo = repoSelect.value;
+            const branch = branchSelect.value;
+            triggerButton.disabled = true;
+            setStatus(`Triggering push for ${repo} / ${branch}...`);
+            try {
+                const job = await fetchJson("/webhook", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ repo, branch }),
+                });
+                setStatus(`Queued ${job.repo} / ${job.branch} with priority ${job.priority}.`, "success");
+                await refreshAll();
+            } catch (error) {
+                setStatus(error.message, "error");
+            } finally {
+                triggerButton.disabled = false;
+            }
+        }
+
+        async function triggerSamples() {
+            sampleButton.disabled = true;
+            setStatus("Triggering the full repo catalog through the CI/CD pipeline...");
+            try {
+                const jobs = await fetchJson("/simulate/sample-pushes", { method: "POST" });
+                setStatus(`Queued ${jobs.length} catalog pushes.`, "success");
+                await refreshAll();
+            } catch (error) {
+                setStatus(error.message, "error");
+            } finally {
+                sampleButton.disabled = false;
+            }
+        }
+
+        async function resetDashboard() {
+            resetButton.disabled = true;
+            setStatus("Resetting queue, job table, and activity history...");
+            try {
+                const result = await fetchJson("/reset", { method: "POST" });
+                setStatus(result.message, "success");
+                await refreshAll();
+            } catch (error) {
+                setStatus(error.message, "error");
+            } finally {
+                resetButton.disabled = false;
+            }
+        }
+
+        repoSelect.addEventListener("change", populateBranches);
+        triggerButton.addEventListener("click", triggerPush);
+        sampleButton.addEventListener("click", triggerSamples);
+        resetButton.addEventListener("click", resetDashboard);
+
+        (async function init() {
+            await loadCatalog();
+            await refreshAll();
+            setInterval(refreshAll, 2500);
+        })().catch((error) => setStatus(error.message, "error"));
+    </script>
+</body>
+</html>

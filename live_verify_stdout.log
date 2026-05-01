@@ -1,0 +1,27 @@
+[SCHEDULER] background scheduler started
+[SERVER] starting Flask server on http://127.0.0.1:8085
+[SERVER] trigger portal will be available on http://127.0.0.1:8085/
+ * Serving Flask app 'server'
+ * Debug mode: off
+[QUEUE] job received id=3fdefb6c-78d1-4b1f-8dcb-95899e831d37 repo=payment-api branch=main language=python priority=0 reason='production branch; repo rank 0 for payment-api' status=pending
+[QUEUE] job received id=d006b553-a185-4c67-9038-ee0d564d17f1 repo=storefront-web branch=main language=node priority=1 reason='production branch; repo rank 1 for storefront-web' status=pending
+[QUEUE] job received id=da119b34-c88d-42dd-b051-20f09689612b repo=analytics-worker branch=main language=python priority=2 reason='production branch; repo rank 2 for analytics-worker' status=pending
+[QUEUE] job received id=25dfe819-b05f-45e1-9cf4-a79e86367ccc repo=identity-service branch=main language=python priority=3 reason='production branch; repo rank 3 for identity-service' status=pending
+[QUEUE] job received id=c6643a74-658b-4d00-96e4-5b28dd6ba4ca repo=notifications-hub branch=main language=node priority=4 reason='production branch; repo rank 4 for notifications-hub' status=pending
+[SCHEDULER] job assigned id=3fdefb6c-78d1-4b1f-8dcb-95899e831d37 repo=payment-api branch=main priority=0 dispatch_order=0 worker=python queue_size=4 assignment_delay=1.00s
+[SERVER] opening trigger portal at http://127.0.0.1:8085/
+[WORKER:python] job started id=3fdefb6c-78d1-4b1f-8dcb-95899e831d37 repo=payment-api branch=main priority=0 load_delay=1.02s
+[SCHEDULER] job assigned id=d006b553-a185-4c67-9038-ee0d564d17f1 repo=storefront-web branch=main priority=1 dispatch_order=1 worker=node queue_size=3 assignment_delay=0.20s
+[WORKER:node] job started id=d006b553-a185-4c67-9038-ee0d564d17f1 repo=storefront-web branch=main priority=1 load_delay=0.97s
+[SCHEDULER] job assigned id=da119b34-c88d-42dd-b051-20f09689612b repo=analytics-worker branch=main priority=2 dispatch_order=2 worker=python queue_size=2 assignment_delay=1.04s
+[WORKER:python] executing id=3fdefb6c-78d1-4b1f-8dcb-95899e831d37 language=python branch=main duration=3.59s
+[WORKER:node] executing id=d006b553-a185-4c67-9038-ee0d564d17f1 language=node branch=main duration=5.11s
+[WORKER:python] job started id=da119b34-c88d-42dd-b051-20f09689612b repo=analytics-worker branch=main priority=2 load_delay=0.63s
+[SCHEDULER] job assigned id=25dfe819-b05f-45e1-9cf4-a79e86367ccc repo=identity-service branch=main priority=3 dispatch_order=3 worker=python queue_size=1 assignment_delay=0.31s
+[WORKER:python] job started id=25dfe819-b05f-45e1-9cf4-a79e86367ccc repo=identity-service branch=main priority=3 load_delay=1.22s
+[SCHEDULER] job assigned id=c6643a74-658b-4d00-96e4-5b28dd6ba4ca repo=notifications-hub branch=main priority=4 dispatch_order=4 worker=node queue_size=0 assignment_delay=0.25s
+[WORKER:node] job started id=c6643a74-658b-4d00-96e4-5b28dd6ba4ca repo=notifications-hub branch=main priority=4 load_delay=0.75s
+[WORKER:python] executing id=da119b34-c88d-42dd-b051-20f09689612b language=python branch=main duration=3.86s
+[WORKER:node] executing id=c6643a74-658b-4d00-96e4-5b28dd6ba4ca language=node branch=main duration=4.99s
+[WORKER:python] executing id=25dfe819-b05f-45e1-9cf4-a79e86367ccc language=python branch=main duration=3.22s
+[WORKER:python] publishing id=3fdefb6c-78d1-4b1f-8dcb-95899e831d37 dispatch_order=0 priority=0
