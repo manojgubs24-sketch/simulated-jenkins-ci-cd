@@ -3,20 +3,21 @@ import threading
 import time
 
 from queue_manager import JobQueueManager
+from repo_manager import GitRepoManager
 from terminal_logger import log
 from workers import GenericWorker, NodeWorker, PythonWorker
 
 
 class Scheduler:
-    def __init__(self, queue_manager: JobQueueManager) -> None:
+    def __init__(self, queue_manager: JobQueueManager, repo_manager: GitRepoManager) -> None:
         self.queue_manager = queue_manager
         self.running = False
         self.thread: threading.Thread | None = None
         self.workers = {
-            "python": PythonWorker(queue_manager),
-            "node": NodeWorker(queue_manager),
+            "python": PythonWorker(queue_manager, repo_manager),
+            "node": NodeWorker(queue_manager, repo_manager),
         }
-        self.fallback_worker = GenericWorker(queue_manager)
+        self.fallback_worker = GenericWorker(queue_manager, repo_manager)
 
     def start(self) -> None:
         if self.running:
@@ -40,12 +41,14 @@ class Scheduler:
             job = self.queue_manager.get_next_job(timeout=1.0)
             if job is None:
                 continue
+            job = self.queue_manager.assign_dispatch_order(job["id"]) or job
 
             worker = self._select_worker(job.get("language", ""))
             assignment_delay = random.uniform(0.2, 1.2)
             log(
                 f"[SCHEDULER] job assigned id={job['id']} "
                 f"repo={job['repo']} branch={job['branch']} priority={job['priority']} "
+                f"dispatch_order={job['dispatch_order']} "
                 f"worker={worker.worker_name} queue_size={self.queue_manager.size()} "
                 f"assignment_delay={assignment_delay:.2f}s"
             )

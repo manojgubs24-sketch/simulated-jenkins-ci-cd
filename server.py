@@ -6,6 +6,7 @@ import webbrowser
 from flask import Flask, jsonify, render_template_string, request
 
 from queue_manager import JobQueueManager
+from repo_manager import GitRepoManager
 from scheduler import Scheduler
 from terminal_logger import configure_terminal_output, log
 
@@ -13,7 +14,8 @@ from terminal_logger import configure_terminal_output, log
 configure_terminal_output()
 app = Flask(__name__)
 queue_manager = JobQueueManager()
-scheduler = Scheduler(queue_manager)
+repo_manager = GitRepoManager()
+scheduler = Scheduler(queue_manager, repo_manager)
 scheduler.start()
 HOST = os.getenv("SIM_JENKINS_HOST", "0.0.0.0")
 PORT = int(os.getenv("SIM_JENKINS_PORT", "8085"))
@@ -222,7 +224,8 @@ PORTAL_HTML = """
                 </div>
             </div>
             <div class="card">
-                <h2>Priority Catalog</h2>
+                <h2>GitHub Target And Priority Catalog</h2>
+                <div id="integrationBox" style="margin-bottom: 16px; color: var(--muted);"></div>
                 <div id="repoList" class="repo-list"></div>
             </div>
         </section>
@@ -250,6 +253,7 @@ PORTAL_HTML = """
         const sampleButton = document.getElementById("sampleButton");
         const jobsTable = document.getElementById("jobsTable");
         const repoList = document.getElementById("repoList");
+        const integrationBox = document.getElementById("integrationBox");
         const statusEl = document.getElementById("status");
         let catalog = [];
 
@@ -274,6 +278,14 @@ PORTAL_HTML = """
                 `;
                 repoList.appendChild(wrapper);
             });
+        }
+
+        function renderIntegration(info) {
+            integrationBox.innerHTML = `
+                <div><strong>Repository:</strong> ${info.repository_url || "Not configured"}</div>
+                <div><strong>Branch pattern:</strong> ${info.branch_pattern}</div>
+                <div><strong>Runtime mirror:</strong> ${info.mirror_path}</div>
+            `;
         }
 
         function populateRepos() {
@@ -326,6 +338,12 @@ PORTAL_HTML = """
             catalog = await response.json();
             renderCatalog();
             populateRepos();
+        }
+
+        async function loadIntegration() {
+            const response = await fetch("/integration/status");
+            const info = await response.json();
+            renderIntegration(info);
         }
 
         async function loadJobs() {
@@ -384,7 +402,9 @@ PORTAL_HTML = """
         sampleButton.addEventListener("click", triggerSamples);
 
         loadCatalog().then(loadJobs);
+        loadIntegration();
         setInterval(loadJobs, 2000);
+        setInterval(loadIntegration, 5000);
     </script>
 </body>
 </html>
@@ -431,6 +451,11 @@ def jobs():
 @app.get("/catalog")
 def catalog():
     return jsonify(queue_manager.get_repo_catalog()), 200
+
+
+@app.get("/integration/status")
+def integration_status():
+    return jsonify(repo_manager.get_status()), 200
 
 
 @app.post("/simulate/sample-pushes")
