@@ -1,0 +1,12 @@
+{
+  "job_id": "25dfe819-b05f-45e1-9cf4-a79e86367ccc",
+  "repo": "identity-service",
+  "branch": "main",
+  "language": "python",
+  "priority": 3,
+  "priority_reason": "production branch; repo rank 3 for identity-service",
+  "dispatch_order": 3,
+  "target_branch": "sim/identity-service/main",
+  "run_number": 1,
+  "processed_at_utc": "2026-05-01T18:11:23.447871+00:00"
+}
