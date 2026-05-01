@@ -1,0 +1,12 @@
+{
+  "job_id": "62c414da-af1b-4f1b-9ad6-216a2af7bc4a",
+  "repo": "analytics-worker",
+  "branch": "develop",
+  "language": "python",
+  "priority": 32,
+  "priority_reason": "shared integration branch; repo rank 2 for analytics-worker",
+  "dispatch_order": 10,
+  "target_branch": "sim/analytics-worker/develop",
+  "run_number": 1,
+  "processed_at_utc": "2026-05-01T18:23:27.256050+00:00"
+}
